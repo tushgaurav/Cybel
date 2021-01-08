@@ -1,16 +1,27 @@
 import discord
-import os
 
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print('Logged on as {0}!'.format(self.user))
+client = discord.Client()
 
-    async def on_message(self, message):
-        print('Message from {0.author}: {0.content}'.format(message))
-        if(message.content == "Hello"):
-            await message.channel.send("What you doin?")
-        if(message.content == "Whatup Bot?"):
-            await message.channel.send("Nothin, what bout you?")
+@client.event
+async def on_ready():
+    print('We have logged in as {0.user}'.format(client))
 
-client = MyClient()
-client.run(os.getenv('TOKEN'))
+@client.event
+async def on_message(message):
+    isBotModerator = "botmoderator" in [i.name for i in message.author.roles]
+
+    if message.author == client.user:
+        return
+
+    if message.content.startswith('$hello') and isBotModerator:
+        msg = "Hello admin! Nice to meet You. Let's get some work done!"
+        await message.channel.send(msg)
+
+    if message.content == "$kick":
+        await message.channel.send("Kicked Who?")
+
+@client.event
+async def on_disconnect():
+    print("Bot Disconnected !") ## Will print in our console not in discord chat.
+
+client.run('Token')
